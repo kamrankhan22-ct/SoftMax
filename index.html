@@ -131,7 +131,7 @@ Return ONLY JSON: {"palette":[3 hex colors: dark brand color, second brand color
 "image_prompts":[3 detailed text-to-image prompts: subject, style, lighting, composition, aspect ratio],
 "video_prompts":[3 text-to-video prompts for individual clips: camera move, subject, action, style]}
 Make it specific, vivid and platform-native. Scene times must sum to ${$('d').value}s.`;
-try{R=[];pi=0;vi=0;for(let i=0;i<prods.length;i++){$('go').textContent='Generating '+(i+1)+'/'+prods.length+'…';R.push({n:prods[i],d:await s.json(mk(prods[i]),{modelTier:'default'})});if(i===0)render()}render()}catch(e){if(R.length)render();$('err').textContent=e.code==='rate_limited'?'Rate limited — wait a moment.':e.code==='not_granted'?'Permission to use AI was declined.':'Generation failed, try again.'}
+try{R=[];pi=0;vi=0;for(let i=0;i<prods.length;i++){$('go').textContent='Generating '+(i+1)+'/'+prods.length+'…';R.push({n:prods[i],d:await s.json(mk(prods[i]),{modelTier:'default'})});if(i===0)render()}render()}catch(e){if(R.length)render();$('err').textContent=e.code==='rate_limited'?'Rate limited — wait a moment.':e.code==='not_granted'?'Permission to use AI was declined.':'Failed: '+(e.message||'try again')}
 $('go').disabled=false;$('go').textContent='Generate campaign'};
 const B=['bn','c1','c2','c3','bf','bu','fmt'];
 function sv(){try{localStorage.setItem('adb',JSON.stringify({v:B.map(k=>$(k).type==='checkbox'?$(k).checked:$(k).value),l:LG?LG.src:null}))}catch(e){}}
