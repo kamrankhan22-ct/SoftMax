@@ -22,17 +22,19 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-5-5',
-        max_tokens: 4000,
+        model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+        max_tokens: 6000,
         system: 'Return ONLY valid JSON. No markdown fences, no commentary.',
         messages: [{ role: 'user', content: prompt }]
       })
     });
     const data = await r.json();
-    if (!r.ok) return res.status(r.status === 429 ? 429 : 502).json({ error: data.error?.message || 'Upstream error' });
+    if (!r.ok) { console.error('Anthropic error', r.status, JSON.stringify(data)); return res.status(r.status === 429 ? 429 : 502).json({ error: 'API ' + r.status + ': ' + (data.error?.message || 'Upstream error') }); }
     const text = (data.content || []).map(c => c.text || '').join('').replace(/```json|```/g, '').trim();
-    return res.status(200).json(JSON.parse(text));
+    const a = text.indexOf('{'), b = text.lastIndexOf('}');
+    return res.status(200).json(JSON.parse(text.slice(a, b + 1)));
   } catch (e) {
-    return res.status(502).json({ error: 'Generation failed, try again.' });
+    console.error('generate failed', e);
+    return res.status(502).json({ error: 'Server error: ' + (e.message || e) });
   }
 }
