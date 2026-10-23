@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>SoftMax</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{--bg:#f7f6f3;--card:#fff;--tx:#1b1b1f;--mu:#6b6b76;--bd:#e4e2dc;--ac:#5b3df5;--ac2:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141417;--card:#1d1d22;--tx:#f1f0ee;--mu:#9a9aa6;--bd:#2c2c33;--ac:#8b74ff}}
+:root[data-theme="dark"]{--bg:#141417;--card:#1d1d22;--tx:#f1f0ee;--mu:#9a9aa6;--bd:#2c2c33;--ac:#8b74ff}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.w{max-width:760px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:22px;margin:0 0 2px}p.s{color:var(--mu);margin:0 0 16px}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+label{display:block;font-size:12px;color:var(--mu);margin:8px 0 4px}
+input,textarea,select{width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit}
+.r{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{font:inherit;border:0;border-radius:10px;padding:11px 14px;background:var(--ac);color:#fff;cursor:pointer;font-weight:600}
+button.g{background:transparent;color:var(--ac);border:1px solid var(--bd);padding:6px 10px;font-size:13px}
+button:disabled{opacity:.5}
+.b{width:100%;margin-top:12px}
+h2{font-size:15px;margin:0 0 8px}
+.i{border-top:1px solid var(--bd);padding:8px 0;display:flex;gap:8px;justify-content:space-between;align-items:flex-start}
+.i:first-of-type{border-top:0}.i span{flex:1;white-space:pre-wrap}
+.t{font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.05em}
+canvas{width:100%;max-width:420px;border-radius:12px;display:block;margin:0 auto 10px;border:1px solid var(--bd)}
+.sc{border-left:3px solid var(--ac);padding:4px 10px;margin:8px 0}
+.tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.tabs button{background:transparent;color:var(--tx);border:1px solid var(--bd)}.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+#err{color:#d33;margin-top:8px}.hide{display:none}input[type=color]{height:42px;padding:2px}details{margin-top:10px}summary{cursor:pointer;color:var(--ac);font-weight:600}input[type=checkbox]{width:auto}
+:root{--sh:0 1px 2px rgba(20,16,50,.05),0 10px 30px rgba(20,16,50,.08);--g:linear-gradient(135deg,#5b3df5,#9b5cff 55%,#ff6ba6)}
+body{background:radial-gradient(900px 420px at 8% -10%,rgba(91,61,245,.16),transparent 60%),radial-gradient(700px 360px at 100% 0,rgba(255,107,166,.13),transparent 60%),var(--bg);background-attachment:fixed;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.01em}
+.w{max-width:820px;padding:26px 16px 60px}
+.hero{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.logo{width:46px;height:46px;border-radius:14px;background:var(--g);display:grid;place-items:center;box-shadow:0 8px 22px rgba(91,61,245,.38)}
+h1{font-size:30px;font-weight:800;letter-spacing:-.035em;margin:0}
+h1 b{background:var(--g);-webkit-background-clip:text;background-clip:text;color:transparent}
+p.s{font-size:15px;margin:0 0 12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 18px}
+.chips span{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;background:var(--card);border:1px solid var(--bd);color:var(--mu)}
+.c{border-radius:20px;padding:20px;box-shadow:var(--sh)}
+label{font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+label:has(input[type=checkbox]){text-transform:none;letter-spacing:0;font-size:13px;display:flex;gap:8px;align-items:center}
+input,textarea,select{border-radius:12px;padding:11px 12px;transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus,select:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px rgba(139,116,255,.25)}
+button{background:var(--g);border-radius:12px;box-shadow:0 6px 16px rgba(91,61,245,.28);transition:transform .15s,box-shadow .15s}
+button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 22px rgba(91,61,245,.35)}
+button.g{background:transparent;box-shadow:none;border-radius:999px}
+button.g:hover:not(:disabled){box-shadow:none;background:var(--bg)}
+.b{padding:15px;font-size:16px;border-radius:14px;margin-top:16px}
+.tabs button{border-radius:999px;padding:8px 15px;font-size:13px;box-shadow:none;background:var(--card)}
+.tabs button.on{background:var(--g);border-color:transparent;box-shadow:0 6px 16px rgba(91,61,245,.3)}
+canvas{border:0;border-radius:14px;box-shadow:0 18px 44px rgba(20,16,50,.28);margin-bottom:16px}
+h2{font-size:17px;font-weight:700;margin-bottom:10px}
+.i{padding:12px 0;align-items:flex-start}
+.sc{background:var(--bg);border:1px solid var(--bd);border-left:3px solid var(--ac);border-radius:12px;padding:10px 12px;margin:10px 0}
+details{background:var(--bg);border:1px solid var(--bd);border-radius:14px;padding:12px 14px}
+input[type=file]{padding:9px}
+#err{font-weight:600}
+</style></head><body><div class="w">
+<div class="hero"><div class="logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.2 6.3L21 10l-6.8 1.7L12 18l-2.2-6.3L3 10l6.8-1.7z"/></svg></div><h1>Soft<b>Max</b></h1></div>
+<p class="s">One brief → ad copy, image ads, video storyboard and ready-to-paste AI prompts.</p><div class="chips"><span>Image ads</span><span>Ad copy</span><span>Video scripts</span><span>AI prompts</span><span>Batch</span></div>
+<div class="c">
+<label>Product / offer</label><textarea id="p" rows="3" placeholder="One product per line for batch mode (max 8). e.g. Cold-brew coffee subscription, 20% off first box"></textarea>
+<div class="r"><div><label>Audience</label><input id="a" placeholder="Busy young professionals"></div>
+<div><label>Tone</label><select id="t"><option>Bold & punchy</option><option>Friendly</option><option>Luxury</option><option>Funny</option><option>Urgent</option><option>Trustworthy</option></select></div></div>
+<div class="r"><div><label>Platform</label><select id="pf"><option>Instagram</option><option>TikTok / Reels</option><option>Facebook</option><option>YouTube</option><option>LinkedIn</option><option>Google Ads</option></select></div>
+<div><label>Video length</label><select id="d"><option>15</option><option>30</option><option>6</option></select></div></div>
+<div class="r"><div><label>Format</label><select id="fmt"><option value="sq">Square 1:1</option><option value="st">Story 9:16</option><option value="ls">Landscape 16:9</option></select></div><div><label>Brand name</label><input id="bn" placeholder="Optional"></div></div>
+<details><summary>Brand kit</summary><div class="r"><div><label>Primary</label><input type="color" id="c1" value="#1f1147"></div><div><label>Secondary</label><input type="color" id="c2" value="#5b3df5"></div><div><label>Accent</label><input type="color" id="c3" value="#ffd84d"></div><div><label>Font</label><select id="bf"><option value="system-ui,sans-serif">Modern</option><option value="Georgia,serif">Classic serif</option><option value="Impact,Haettenschweiler,sans-serif">Impact</option><option value="Trebuchet MS,sans-serif">Friendly</option><option value="ui-monospace,monospace">Mono</option></select></div></div><label>Logo (PNG/SVG/JPG)</label><input type="file" id="lg" accept="image/*"><label><input type="checkbox" id="bu"> Use my brand colors on image ads</label><p class="s" style="margin:6px 0 0;font-size:12px">Saved in this browser.</p></details>
+<button class="b" id="go">Generate campaign</button><div id="err"></div></div>
+<div id="out" class="hide"><div class="tabs" id="ps"></div>
+<div class="tabs"><button data-k="img" class="on">Image ad</button><button data-k="copy">Copy</button><button data-k="vid">Video</button><button data-k="pr">AI prompts</button></div>
+<div id="img" class="c"><canvas id="cv" width="1080" height="1080"></canvas>
+<div class="tabs" id="vs"></div><button id="dl">Download PNG</button></div>
+<div id="copy" class="c hide"></div><div id="vid" class="c hide"></div><div id="pr" class="c hide"></div>
+<button class="g" id="kit">Download full kit (.md)</button>
+</div></div>
+<script>
+// Deploy shim: replaces the claude.ai runtime with your own backend + normal file downloads
+const claude={use:async n=>n==='sample'?{json:async p=>{const r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})});let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw{code:r.status===429?'rate_limited':'error',message:j.error||'Request failed'};return j}}:n==='downloads'?{save:async({filename,data})=>{const a=document.createElement('a');a.href=URL.createObjectURL(data instanceof Blob?data:new Blob([data]));a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500)}}:null};
+
+const $=id=>document.getElementById(id);let D=null,vi=0,pi=0,R=[],LG=null;const FM={sq:[1080,1080],st:[1080,1920],ls:[1920,1080]};
+const esc=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function wrap(x,t,mx,lh,y){const w=t.split(' ');let l='',ls=[];for(const q of w){const n=l?l+' '+q:q;if(x.measureText(n).width>mx&&l){ls.push(l);l=q}else l=n}ls.push(l);ls.forEach((s,i)=>x.fillText(s,x.canvas.width/2,y+i*lh));return y+ls.length*lh}
+function draw(){const v=D.image_ads[vi],c=$('cv'),F=FM[$('fmt').value]||FM.sq,W=F[0],H=F[1],x=c.getContext('2d'),p=$('bu').checked?[$('c1').value,$('c2').value,$('c3').value]:D.palette,ff=$('bf').value,cx=W/2;c.width=W;c.height=H;
+const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,p[0]);g.addColorStop(1,p[1]);x.fillStyle=g;x.fillRect(0,0,W,H);
+x.globalAlpha=.12;x.fillStyle=p[2];x.beginPath();x.arc(W*.85,H*.15,320,0,7);x.fill();x.beginPath();x.arc(W*.1,H*.9,260,0,7);x.fill();x.globalAlpha=1;
+x.textAlign='center';x.fillStyle='#fff';let y=70;
+if(LG){const h=100,w=LG.width/LG.height*h;x.drawImage(LG,cx-w/2,y,w,h);y+=h+20}
+const bn=$('bn').value;if(bn){x.font='700 34px '+ff;x.fillText(bn,cx,y+34);y+=50}
+x.font='700 30px '+ff;x.fillText((v.badge||'').toUpperCase(),cx,y+50);
+x.font='800 96px '+ff;const mw=W>H?W*.7:860;y=wrap(x,v.headline,mw,108,Math.max(y+190,H*.36));
+x.font='400 38px '+ff;x.globalAlpha=.9;wrap(x,v.sub,mw-40,52,y+30);x.globalAlpha=1;
+x.font='700 40px '+ff;const w2=x.measureText(v.cta).width+100,by=H-200;x.fillStyle=p[2];x.beginPath();x.roundRect(cx-w2/2,by,w2,100,50);x.fill();x.fillStyle='#111';x.fillText(v.cta,cx,by+65)}
+function drawOld(){const v=D.image_ads[vi],c=$('cv'),x=c.getContext('2d'),p=D.palette;
+const g=x.createLinearGradient(0,0,1080,1080);g.addColorStop(0,p[0]);g.addColorStop(1,p[1]);x.fillStyle=g;x.fillRect(0,0,1080,1080);
+x.globalAlpha=.12;x.fillStyle=p[2];x.beginPath();x.arc(900,180,320,0,7);x.fill();x.beginPath();x.arc(120,980,260,0,7);x.fill();x.globalAlpha=1;
+x.textAlign='center';x.fillStyle='#fff';x.font='700 30px system-ui,sans-serif';x.fillText((v.badge||'').toUpperCase(),540,150);
+x.font='800 96px system-ui,sans-serif';let y=wrap(x,v.headline,860,108,340);
+x.font='400 38px system-ui,sans-serif';x.globalAlpha=.9;wrap(x,v.sub,820,52,y+30);x.globalAlpha=1;
+x.font='700 40px system-ui,sans-serif';const w=x.measureText(v.cta).width+100;x.fillStyle=p[2];x.beginPath();x.roundRect(540-w/2,880,w,100,50);x.fill();
+x.fillStyle='#111';x.fillText(v.cta,540,945)}
+function cp(s,b){navigator.clipboard?.writeText(s).then(()=>{const o=b.textContent;b.textContent='Copied';setTimeout(()=>b.textContent=o,900)}).catch(()=>{})}
+function row(el,label,t){const d=document.createElement('div');d.className='i';d.innerHTML='<span><b class="t">'+esc(label)+'</b><br>'+esc(t)+'</span>';const b=document.createElement('button');b.className='g';b.textContent='Copy';b.onclick=()=>cp(t,b);d.append(b);el.append(d)}
+function render(){D=R[pi].d;$('out').classList.remove('hide');$('ps').innerHTML='';if(R.length>1)R.forEach((r,i)=>{const b=document.createElement('button');b.textContent=r.n.slice(0,22);b.className=i===pi?'on':'';b.onclick=()=>{pi=i;vi=0;render()};$('ps').append(b)});
+$('vs').innerHTML='';D.image_ads.forEach((_,i)=>{const b=document.createElement('button');b.textContent='Variant '+(i+1);b.className=i===vi?'on':'';b.onclick=()=>{vi=i;render()};$('vs').append(b)});draw();
+const C=$('copy');C.innerHTML='<h2>Ad copy</h2>';D.copy.forEach((c,i)=>{row(C,'Variant '+(i+1)+' · '+c.angle,c.headline+'\n\n'+c.body+'\n\n'+c.cta)});
+row(C,'Hashtags',D.hashtags.join(' '));
+const V=$('vid');V.innerHTML='<h2>'+esc(D.video.title)+'</h2><p><b>Hook:</b> '+esc(D.video.hook)+'</p>';
+D.video.scenes.forEach(s=>{const d=document.createElement('div');d.className='sc';d.innerHTML='<span class="t">'+esc(s.time)+'</span><br>🎬 '+esc(s.visual)+'<br>🎙 '+esc(s.voiceover)+'<br>🔤 '+esc(s.on_screen)+'';V.append(d)});
+row(V,'Music / sound',D.video.music);
+const P=$('pr');P.innerHTML='<h2>Paste into any image / video AI</h2>';
+D.image_prompts.forEach((t,i)=>row(P,'Image prompt '+(i+1),t));D.video_prompts.forEach((t,i)=>row(P,'Video clip prompt '+(i+1),t))}
+document.querySelectorAll('.tabs[data-k], .tabs button[data-k]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-k]').forEach(x=>x.classList.toggle('on',x===b));['img','copy','vid','pr'].forEach(k=>$(k).classList.toggle('hide',k!==b.dataset.k))});
+async function save(name,data){try{const d=await claude.use('downloads');if(!d){$('err').textContent='Downloads unavailable here — use Copy buttons.';return}await d.save({filename:name,data})}catch(e){}}
+$('dl').onclick=()=>$('cv').toBlob(b=>save('ad-'+(vi+1)+'.png',b),'image/png');
+function kitOne(){let m='\n\n';D.copy.forEach((c,i)=>m+='## Copy '+(i+1)+' ('+c.angle+')\n'+c.headline+'\n\n'+c.body+'\n\n'+c.cta+'\n\n');
+m+='## Video: '+D.video.title+'\nHook: '+D.video.hook+'\n\n';D.video.scenes.forEach(s=>m+='- '+s.time+' | '+s.visual+' | VO: '+s.voiceover+' | Text: '+s.on_screen+'\n');
+m+='\n## Image prompts\n'+D.image_prompts.map(x=>'- '+x).join('\n')+'\n\n## Video prompts\n'+D.video_prompts.map(x=>'- '+x).join('\n')+'\n\n'+D.hashtags.join(' ');
+return m}
+$('kit').onclick=()=>{const cur=D;let m='# Campaign kit\n\n';R.forEach(r=>{D=r.d;m+='# '+r.n+'\n\n'+kitOne()+'\n\n---\n\n'});D=cur;save('campaign-kit.md',new Blob([m],{type:'text/markdown'}))};
+$('go').onclick=async()=>{$('err').textContent='';const prods=$('p').value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,8);if(!prods.length){$('err').textContent='Describe your product first.';return}
+const s=await claude.use('sample');if(!s){$('err').textContent='AI generation is unavailable in this view.';return}
+$('go').disabled=true;$('go').textContent='Generating…';
+const mk=prod=>`You are an expert direct-response ad creative director. Brief: product="${prod}"; audience="${$('a').value||'general'}"; tone=${$('t').value}; brand="${$('bn').value}"; platform=${$('pf').value}; video length=${$('d').value}s.
+Return ONLY JSON: {"palette":[3 hex colors: dark brand color, second brand color, bright accent],
+"image_ads":[3 items {"badge":"max 3 words","headline":"max 7 words","sub":"max 14 words","cta":"max 3 words"}],
+"copy":[3 items {"angle":"e.g. pain point / social proof / offer","headline":"","body":"max 40 words","cta":""}],
+"hashtags":[6 strings],
+"video":{"title":"","hook":"first 2s hook","music":"","scenes":[3-5 items {"time":"0-3s","visual":"","voiceover":"","on_screen":""}]},
+"image_prompts":[3 detailed text-to-image prompts: subject, style, lighting, composition, aspect ratio],
+"video_prompts":[3 text-to-video prompts for individual clips: camera move, subject, action, style]}
+Make it specific, vivid and platform-native. Scene times must sum to ${$('d').value}s.`;
+try{R=[];pi=0;vi=0;for(let i=0;i<prods.length;i++){$('go').textContent='Generating '+(i+1)+'/'+prods.length+'…';R.push({n:prods[i],d:await s.json(mk(prods[i]),{modelTier:'default'})});if(i===0)render()}render()}catch(e){if(R.length)render();$('err').textContent=e.code==='rate_limited'?'Rate limited — wait a moment.':e.code==='not_granted'?'Permission to use AI was declined.':'Generation failed, try again.'}
+$('go').disabled=false;$('go').textContent='Generate campaign'};
+const B=['bn','c1','c2','c3','bf','bu','fmt'];
+function sv(){try{localStorage.setItem('adb',JSON.stringify({v:B.map(k=>$(k).type==='checkbox'?$(k).checked:$(k).value),l:LG?LG.src:null}))}catch(e){}}
+try{const s=JSON.parse(localStorage.getItem('adb')||'null');if(s){B.forEach((k,i)=>{if($(k).type==='checkbox')$(k).checked=!!s.v[i];else if(s.v[i]!=null)$(k).value=s.v[i]});if(s.l){LG=new Image();LG.src=s.l}}}catch(e){}
+B.forEach(k=>{$(k).onchange=$(k).oninput=()=>{sv();if(D)draw()}});
+$('lg').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{LG=i;sv();if(D)draw()};i.src=r.result};r.readAsDataURL(f)};
+</script></body></html>
