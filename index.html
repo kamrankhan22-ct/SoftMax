@@ -56,9 +56,11 @@ h2{font-size:17px;font-weight:700;margin-bottom:10px}
 details{background:var(--bg);border:1px solid var(--bd);border-radius:14px;padding:12px 14px}
 input[type=file]{padding:9px}
 #err{font-weight:600}
+.chips button.ch{background:var(--card);color:var(--mu);border:1px solid var(--bd);box-shadow:none;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600}
+.chips button.ch:hover:not(:disabled){color:var(--tx);border-color:var(--ac);box-shadow:none;transform:none}
 </style></head><body><div class="w">
 <div class="hero"><div class="logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.2 6.3L21 10l-6.8 1.7L12 18l-2.2-6.3L3 10l6.8-1.7z"/></svg></div><h1>Soft<b>Max</b></h1></div>
-<p class="s">One brief → ad copy, image ads, video storyboard and ready-to-paste AI prompts.</p><div class="chips"><span>Image ads</span><span>Ad copy</span><span>Video scripts</span><span>AI prompts</span><span>Batch</span></div>
+<p class="s">One brief → ad copy, image ads, video storyboard and ready-to-paste AI prompts.</p><div class="chips"><button class="ch" data-go="img">Image ads</button><button class="ch" data-go="copy">Ad copy</button><button class="ch" data-go="vid">Video scripts</button><button class="ch" data-go="pr">AI prompts</button><button class="ch" data-go="batch">Batch</button></div>
 <div class="c">
 <label>Product / offer</label><textarea id="p" rows="3" placeholder="One product per line for batch mode (max 8). e.g. Cold-brew coffee subscription, 20% off first box"></textarea>
 <div class="r"><div><label>Audience</label><input id="a" placeholder="Busy young professionals"></div>
@@ -119,7 +121,7 @@ m+='## Video: '+D.video.title+'\nHook: '+D.video.hook+'\n\n';D.video.scenes.forE
 m+='\n## Image prompts\n'+D.image_prompts.map(x=>'- '+x).join('\n')+'\n\n## Video prompts\n'+D.video_prompts.map(x=>'- '+x).join('\n')+'\n\n'+D.hashtags.join(' ');
 return m}
 $('kit').onclick=()=>{const cur=D;let m='# Campaign kit\n\n';R.forEach(r=>{D=r.d;m+='# '+r.n+'\n\n'+kitOne()+'\n\n---\n\n'});D=cur;save('campaign-kit.md',new Blob([m],{type:'text/markdown'}))};
-$('go').onclick=async()=>{$('err').textContent='';const prods=$('p').value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,8);if(!prods.length){$('err').textContent='Describe your product first.';return}
+$('go').onclick=async()=>{$('err').style.color='';$('err').textContent='';const prods=$('p').value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,8);if(!prods.length){$('err').textContent='Describe your product first.';return}
 const s=await claude.use('sample');if(!s){$('err').textContent='AI generation is unavailable in this view.';return}
 $('go').disabled=true;$('go').textContent='Generating…';
 const mk=prod=>`You are an expert direct-response ad creative director. Brief: product="${prod}"; audience="${$('a').value||'general'}"; tone=${$('t').value}; brand="${$('bn').value}"; platform=${$('pf').value}; video length=${$('d').value}s.
@@ -131,11 +133,17 @@ Return ONLY JSON: {"palette":[3 hex colors: dark brand color, second brand color
 "image_prompts":[3 detailed text-to-image prompts: subject, style, lighting, composition, aspect ratio],
 "video_prompts":[3 text-to-video prompts for individual clips: camera move, subject, action, style]}
 Make it specific, vivid and platform-native. Scene times must sum to ${$('d').value}s.`;
-try{R=[];pi=0;vi=0;for(let i=0;i<prods.length;i++){$('go').textContent='Generating '+(i+1)+'/'+prods.length+'…';R.push({n:prods[i],d:await s.json(mk(prods[i]),{modelTier:'default'})});if(i===0)render()}render()}catch(e){if(R.length)render();$('err').textContent=e.code==='rate_limited'?'Rate limited — wait a moment.':e.code==='not_granted'?'Permission to use AI was declined.':'Failed: '+(e.message||'try again')}
+try{R=[];pi=0;vi=0;for(let i=0;i<prods.length;i++){$('go').textContent='Generating '+(i+1)+'/'+prods.length+'…';R.push({n:prods[i],d:await s.json(mk(prods[i]),{modelTier:'default'})});if(i===0){render();if(want){openTab(want);want=null}}}render()}catch(e){if(R.length)render();$('err').textContent=e.code==='rate_limited'?'Rate limited — wait a moment.':e.code==='not_granted'?'Permission to use AI was declined.':'Failed: '+(e.message||'try again')}
 $('go').disabled=false;$('go').textContent='Generate campaign'};
 const B=['bn','c1','c2','c3','bf','bu','fmt'];
 function sv(){try{localStorage.setItem('adb',JSON.stringify({v:B.map(k=>$(k).type==='checkbox'?$(k).checked:$(k).value),l:LG?LG.src:null}))}catch(e){}}
 try{const s=JSON.parse(localStorage.getItem('adb')||'null');if(s){B.forEach((k,i)=>{if($(k).type==='checkbox')$(k).checked=!!s.v[i];else if(s.v[i]!=null)$(k).value=s.v[i]});if(s.l){LG=new Image();LG.src=s.l}}}catch(e){}
 B.forEach(k=>{$(k).onchange=$(k).oninput=()=>{sv();if(D)draw()}});
 $('lg').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{LG=i;sv();if(D)draw()};i.src=r.result};r.readAsDataURL(f)};
+let want=null;const NM={img:'Image ads',copy:'Ad copy',vid:'Video scripts',pr:'AI prompts'};
+function note(t){const e=$('err');e.style.color='var(--mu)';e.textContent=t}
+function openTab(k){const b=document.querySelector('.tabs button[data-k="'+k+'"]');if(b)b.click();$('out').scrollIntoView({behavior:'smooth',block:'start'})}
+document.querySelectorAll('.chips [data-go]').forEach(c=>c.onclick=()=>{const k=c.dataset.go;
+if(k==='batch'){$('p').scrollIntoView({block:'center',behavior:'smooth'});$('p').focus();note('Batch mode: type one product per line (max 8), then tap Generate.');return}
+if(D){openTab(k)}else{want=k;$('p').scrollIntoView({block:'center',behavior:'smooth'});$('p').focus();note('Describe your product and tap Generate. '+NM[k]+' will open when ready.')}});
 </script></body></html>
